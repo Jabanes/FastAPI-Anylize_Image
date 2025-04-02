@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Captioning</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    img { max-width: 300px; margin-top: 10px; }
+    #output { margin-top: 15px; font-size: 18px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Upload an Image to Describe It</h2>
+  <input type="file" id="imageInput" accept="image/*">
+  <button onclick="uploadImage()">Analyze</button>
+  <br />
+  <img id="preview" src="#" style="display:none;" />
+  <div id="output"></div>
+
+  <script>
+    async function uploadImage() {
+      const input = document.getElementById('imageInput');
+      const file = input.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.getElementById('preview').src = reader.result;
+        document.getElementById('preview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+
+      const res = await fetch('/analyze-image/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      document.getElementById('output').innerText = 'Description: ' + data.description;
+    }
+  </script>
+</body>
+</html>
